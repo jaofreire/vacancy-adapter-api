@@ -16,8 +16,8 @@ namespace CurriculumAdapter.API.Services
         public AdaptService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _apiKeyOpenAI = _configuration["OpenAI:ApiKey"]!;
-            _assistantId = _configuration["OpenAI:AssistantIdGPT4.1Mini"]!;
+            _apiKeyOpenAI = _configuration["OpenAI:ApiKey"] ?? Environment.GetEnvironmentVariable("OPEN_AI_API_KEY")!;
+            _assistantId = _configuration["OpenAI:AssistantIdGPT4.1Mini"] ?? Environment.GetEnvironmentVariable("ASSISTANT_ID_GPT_41_MINI")!;
         }
 
         #pragma warning disable OPENAI001
