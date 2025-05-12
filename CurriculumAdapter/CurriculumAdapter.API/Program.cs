@@ -1,3 +1,4 @@
+using CurriculumAdapter.API.Middleware;
 using CurriculumAdapter.API.Services;
 using CurriculumAdapter.API.Services.Interface;
 
@@ -34,6 +35,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseCors("CorsPolicy");
+
+app.UseMiddleware<ExceptionHandler>();
 
 app.UseHttpsRedirection();
 
