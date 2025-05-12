@@ -1,6 +1,7 @@
 using CurriculumAdapter.API.Middleware;
 using CurriculumAdapter.API.Services;
 using CurriculumAdapter.API.Services.Interface;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,19 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAdaptService, AdaptService>();
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("RateLimitPolicy", context =>
+    RateLimitPartition.GetFixedWindowLimiter(partitionKey: context.Connection.RemoteIpAddress.ToString(), factory: key => new FixedWindowRateLimiterOptions
+    {
+        AutoReplenishment = true,
+        PermitLimit = 5,
+        Window = TimeSpan.FromSeconds(10),
+        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+        QueueLimit = 5,
+    }));
+});
 
 builder.Services.AddCors(c =>
 {
@@ -36,12 +50,14 @@ app.UseSwaggerUI();
 
 app.UseCors("CorsPolicy");
 
+app.UseRateLimiter();
+
 app.UseMiddleware<ExceptionHandler>();
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers().RequireRateLimiting("RateLimitPolicy");
 
 app.Run();
