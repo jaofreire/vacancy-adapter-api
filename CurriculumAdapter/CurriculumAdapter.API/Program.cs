@@ -16,9 +16,14 @@ builder.Services.AddCors(c =>
 {
     c.AddPolicy("CorsPolicy", p =>
     {
-        p.AllowAnyOrigin();
+        p.WithOrigins
+        (
+            builder.Configuration["CORS:ClientUrl"] ?? Environment.GetEnvironmentVariable("CORS_CLIENT_URL")!,
+            builder.Configuration["CORS:LocalhostUrl"] ?? Environment.GetEnvironmentVariable("CORS_LOCALHOST_URL")!
+        );
+        p.WithMethods("GET", "POST");
         p.AllowAnyHeader();
-        p.AllowAnyMethod();
+        p.AllowCredentials();
     });
 });
 
@@ -27,8 +32,6 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
-
-
 
 app.UseCors("CorsPolicy");
 
