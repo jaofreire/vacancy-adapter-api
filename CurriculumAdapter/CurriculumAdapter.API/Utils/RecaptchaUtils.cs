@@ -24,9 +24,9 @@ namespace CurriculumAdapter.API.Utils
             Console.WriteLine($"Json Recaptcha Response: {json}");
 
             var recaptchaResponse = JsonSerializer.Deserialize<RecaptchaResponse>(json);
-            Console.WriteLine($"Recaptcha Response: {recaptchaResponse!.Success}");
+            Console.WriteLine($"Recaptcha Response: {recaptchaResponse!.success}");
 
-            return recaptchaResponse!.Success;
+            return recaptchaResponse!.success;
         }
     }
 }
