@@ -5,7 +5,7 @@ namespace CurriculumAdapter.API.Utils
 {
     public class RecaptchaResponse
     {
-        public bool Success { get; set; }
+        public bool success { get; set; }
     }
 
     public static class RecaptchaUtils
