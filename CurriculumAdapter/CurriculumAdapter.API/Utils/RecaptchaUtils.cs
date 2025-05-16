@@ -21,6 +21,7 @@ namespace CurriculumAdapter.API.Utils
             }));
 
             var json = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Json Recaptcha Response: {json}");
 
             var recaptchaResponse = JsonSerializer.Deserialize<RecaptchaResponse>(json);
             Console.WriteLine($"Recaptcha Response: {recaptchaResponse!.Success}");
