@@ -1,7 +1,13 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
+using System.Text.Json;
 
 namespace CurriculumAdapter.API.Utils
 {
+    public class RecaptchaResponse
+    {
+        public bool Success { get; set; }
+    }
+
     public static class RecaptchaUtils
     {
         public async static Task<bool> ValidateRecaptcha(string recaptchaToken, string secretKey)
@@ -16,7 +22,10 @@ namespace CurriculumAdapter.API.Utils
 
             var json = await response.Content.ReadAsStringAsync();
 
-            return false;
+            var recaptchaResponse = JsonSerializer.Deserialize<RecaptchaResponse>(json);
+            Console.WriteLine($"Recaptcha Response: {recaptchaResponse!.Success}");
+
+            return recaptchaResponse!.Success;
         }
     }
 }
