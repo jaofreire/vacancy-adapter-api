@@ -17,7 +17,7 @@ namespace CurriculumAdapter.API.Controllers
         {
             try
             {
-               return await _adaptService.SendPromptToAssistant(inputDTO.Description, inputDTO.UserSkills, inputDTO.File);
+               return await _adaptService.SendPromptToAssistant(inputDTO.RecaptchaToken, inputDTO.Description, inputDTO.UserSkills, inputDTO.File);
             }
             catch (Exception ex)
             {
