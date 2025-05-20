@@ -23,8 +23,9 @@ namespace CurriculumAdapter.API.Services
         #pragma warning disable OPENAI001
         public async Task<APIResponse<AssistantResponse>> SendPromptToAssistant(string recaptchaToken ,string description, string userSkills, IFormFile file)
         {
-            if (!await RecaptchaUtils.ValidateRecaptcha(recaptchaToken, _configuration["ReCaptcha:SecretKey"] ?? Environment.GetEnvironmentVariable("RECAPTCHA_SECRET_KEY")!))
-                return new APIResponse<AssistantResponse>(false, 401, "Token recaptcha inválido", null, null);
+            if(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
+                if (!await RecaptchaUtils.ValidateRecaptcha(recaptchaToken, _configuration["ReCaptcha:SecretKey"] ?? Environment.GetEnvironmentVariable("RECAPTCHA_SECRET_KEY")!))
+                    return new APIResponse<AssistantResponse>(false, 401, "Token recaptcha inválido", null, null);
 
             var inputPrompt = PromptUtils.GenerateCurriculumAdapterPrompt(description, userSkills);
 

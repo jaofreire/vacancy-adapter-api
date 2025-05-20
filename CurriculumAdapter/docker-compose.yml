@@ -12,3 +12,11 @@ services:
     environment:
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https-certs/aspnetcore.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=iqwdf93jr9023njrm0923mf2qom3
+
+
+  adminer:
+   container_name: adminer-container
+   image: adminer
+   restart: always
+   ports:
+    - 8082:8080 

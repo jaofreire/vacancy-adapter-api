@@ -1,6 +1,10 @@
+using CurriculumAdapter.API.Data.Context;
+using CurriculumAdapter.API.Data.Repositories;
+using CurriculumAdapter.API.Data.Repositories.Interfaces;
 using CurriculumAdapter.API.Middleware;
 using CurriculumAdapter.API.Services;
 using CurriculumAdapter.API.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +16,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+string connectionStrings = Environment.GetEnvironmentVariable("DATABASE_CONNECTION") ?? builder.Configuration["DatabaseConnection:ConnectionStrings"]!;
+
+builder.Services.AddDbContextPool<DatabaseContext>(o => o.UseNpgsql(connectionStrings));
+
+builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+
 builder.Services.AddScoped<IAdaptService, AdaptService>();
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+
 
 builder.Services.AddRateLimiter(options =>
 {
