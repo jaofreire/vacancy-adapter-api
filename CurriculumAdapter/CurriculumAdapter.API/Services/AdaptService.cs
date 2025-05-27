@@ -27,7 +27,7 @@ namespace CurriculumAdapter.API.Services
                 if (!await RecaptchaUtils.ValidateRecaptcha(recaptchaToken, _configuration["ReCaptcha:SecretKey"] ?? Environment.GetEnvironmentVariable("RECAPTCHA_SECRET_KEY")!))
                     return new APIResponse<AssistantResponse>(false, 401, "Token recaptcha inválido", null, null);
 
-            var inputPrompt = PromptUtils.GenerateCurriculumAdapterPrompt(description, userSkills);
+            //var inputPrompt = PromptUtils.GenerateCurriculumAdapterPrompt(description, userSkills);
 
             var openAIClient = new OpenAIClient(_apiKeyOpenAI);
             var assistantClient = openAIClient.GetAssistantClient();
@@ -46,7 +46,7 @@ namespace CurriculumAdapter.API.Services
 
                     var threadOptions = new ThreadCreationOptions()
                     {
-                        InitialMessages = { inputPrompt.PreRequisites + inputPrompt.UserPrompt },
+                        InitialMessages = { $"Descrição: {description}. Texto de competências: {userSkills}" },
                         ToolResources = assistant.Value.ToolResources
                     };
 
