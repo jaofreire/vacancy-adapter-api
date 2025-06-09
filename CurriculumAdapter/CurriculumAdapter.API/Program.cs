@@ -20,10 +20,16 @@ string connectionStrings = Environment.GetEnvironmentVariable("DATABASE_CONNECTI
 
 builder.Services.AddDbContextPool<DatabaseContext>(o => o.UseNpgsql(connectionStrings));
 
+string qdrantHost = Environment.GetEnvironmentVariable("QDRANT_HOST") ?? builder.Configuration["Qdrant:Host"]!;
+
+builder.Services.AddSingleton<QdrantContext>(new QdrantContext(qdrantHost));
+
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+builder.Services.AddScoped<IJobsCollectionRepository, JobsCollectionRepository>();
 
 builder.Services.AddScoped<IAdaptService, AdaptService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddScoped<IAdvisorService, AdvisorService>();
 
 
 builder.Services.AddRateLimiter(options =>
