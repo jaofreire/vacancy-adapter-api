@@ -26,10 +26,12 @@ builder.Services.AddSingleton<QdrantContext>(new QdrantContext(qdrantHost));
 
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 builder.Services.AddScoped<IJobsCollectionRepository, JobsCollectionRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddScoped<IAdaptService, AdaptService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IAdvisorService, AdvisorService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 
 builder.Services.AddRateLimiter(options =>

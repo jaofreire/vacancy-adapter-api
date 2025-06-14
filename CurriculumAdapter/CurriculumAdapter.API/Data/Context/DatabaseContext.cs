@@ -8,6 +8,7 @@ namespace CurriculumAdapter.API.Data.Context
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 
         public DbSet<FeedbackModel> Feedbacks { get; set; }
+        public DbSet<UserModel> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

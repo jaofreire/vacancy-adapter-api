@@ -8,6 +8,8 @@ namespace CurriculumAdapter.API.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<FeedbackModel> builder)
         {
+            builder.ToTable("feedbacks");
+
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnName("id").IsRequired();
 
