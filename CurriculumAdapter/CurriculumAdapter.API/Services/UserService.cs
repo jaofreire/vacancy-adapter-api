@@ -1,7 +1,10 @@
 ﻿using CurriculumAdapter.API.Data.Repositories.Interfaces;
+using CurriculumAdapter.API.DTOs;
 using CurriculumAdapter.API.Models;
 using CurriculumAdapter.API.Response;
 using CurriculumAdapter.API.Services.Interface;
+using CurriculumAdapter.API.Models.Enums;
+using CurriculumAdapter.API.Utils;
 
 namespace CurriculumAdapter.API.Services
 {
@@ -9,14 +12,26 @@ namespace CurriculumAdapter.API.Services
     {
         private readonly IUserRepository _repository = repository;
 
-        public async Task<APIResponse<UserModel>> Register(UserModel model)
+        public async Task<APIResponse<UserModel>> Register(RegisterUserInputDTO input)
         {
-            var existsSameEmailUser = await _repository.Get(x => x.Email == model.Email);
+            var existsSameEmailUser = await _repository.Get(x => x.Email == input.Email);
 
             if (existsSameEmailUser.Any())
                 return new APIResponse<UserModel>(false, 400, "Já existe uma conta com este Email, tente fazer Login ou recuperar sua senha");
 
-            await _repository.Register(model);
+            var passwordHash = PasswordHashUtils.CreateHashPassword(input.Password);
+
+            var newUser = new UserModel()
+            {
+                Type = UserTypeEnum.Default,
+                FirstName = input.FirstName,
+                LastName = input.LastName,
+                Email = input.Email,
+                PasswordHash = passwordHash,
+            };
+
+            //CRIAR HASH DA SENHA
+            await _repository.Register(newUser);
             await _repository.Commit();
 
             return new APIResponse<UserModel>(true, 200, "Usuário cadastrado com sucesso!");

@@ -1,4 +1,5 @@
-﻿using CurriculumAdapter.API.Models;
+﻿using CurriculumAdapter.API.DTOs;
+using CurriculumAdapter.API.Models;
 using CurriculumAdapter.API.Response;
 using CurriculumAdapter.API.Services.Interface;
 using Microsoft.AspNetCore.Http;
@@ -13,9 +14,9 @@ namespace CurriculumAdapter.API.Controllers
         private readonly IUserService _service = service;
 
         [HttpPost]
-        public async Task<ActionResult<APIResponse<UserModel>>> Register(UserModel model)
+        public async Task<ActionResult<APIResponse<UserModel>>> Register(RegisterUserInputDTO input)
         {
-            var result = await _service.Register(model);
+            var result = await _service.Register(input);
 
             if(result.Code == 400)
                 return BadRequest(result);
