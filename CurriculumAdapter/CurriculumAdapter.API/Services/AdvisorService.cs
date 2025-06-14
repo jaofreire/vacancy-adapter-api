@@ -1,5 +1,7 @@
 ﻿using CurriculumAdapter.API.Data.Repositories;
 using CurriculumAdapter.API.Data.Repositories.Interfaces;
+using CurriculumAdapter.API.Models.Enums;
+using CurriculumAdapter.API.Models.Logs;
 using CurriculumAdapter.API.Response;
 using CurriculumAdapter.API.Services.Interface;
 using CurriculumAdapter.API.Utils;
@@ -7,6 +9,7 @@ using OpenAI;
 using OpenAI.Assistants;
 using OpenAI.Embeddings;
 using OpenAI.Files;
+using System.Security.Claims;
 using System.Text;
 
 
@@ -16,14 +19,18 @@ namespace CurriculumAdapter.API.Services
     public class AdvisorService : IAdvisorService
     {
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IJobsCollectionRepository _jobsCollectionRepository;
+        private readonly IFeatureUsageLogRepository _featureUsageLogRepository;
         private readonly string _apiKeyOpenAI;
         private readonly string _assistantId;
 
-        public AdvisorService(IConfiguration configuration, IJobsCollectionRepository jobsCollectionRepository)
+        public AdvisorService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IJobsCollectionRepository jobsCollectionRepository, IFeatureUsageLogRepository featureUsageLogRepository)
         {
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
             _jobsCollectionRepository = jobsCollectionRepository;
+            _featureUsageLogRepository = featureUsageLogRepository;
             _apiKeyOpenAI = _configuration["OpenAI:ApiKey"] ?? Environment.GetEnvironmentVariable("OPEN_AI_API_KEY")!;
             _assistantId = _configuration["OpenAI:AdvisorAssistantId"] ?? Environment.GetEnvironmentVariable("ADVISOR_ASSISTANT_ID")!;
         }
@@ -31,9 +38,22 @@ namespace CurriculumAdapter.API.Services
 #pragma warning disable OPENAI001
         public async Task<APIResponse<string>> SendPromptToAdvisorAssistant(string curriculumData)
         {
+            var userType = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role).Value;
+            var userId = Guid.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            if (userType == UserTypeEnum.Default.ToString())
+            {
+                var userFeatureUsageLogsToday = await _featureUsageLogRepository.Get(
+                    x => x.UserId == userId
+                    && x.UsageDate.Date == DateTime.Now.Date
+                    && x.FeatureName == FeatureNameEnum.Advisor.ToString());
+
+                if (userFeatureUsageLogsToday.Count() >= 2)
+                    return new APIResponse<string>(false, 400, "Limite gratuito diário atingido");
+            }
+
             var openAIClient = new OpenAIClient(_apiKeyOpenAI);
             var assistantClient = openAIClient.GetAssistantClient();
-            //var fileClient = openAIClient.GetOpenAIFileClient();
 
             var assistant = await assistantClient.GetAssistantAsync(_assistantId);
 
@@ -77,6 +97,10 @@ namespace CurriculumAdapter.API.Services
                     {
                         var messageContent = message.Content[0].Text;
 
+                        var featureUsageLog = new FeatureUsageLogModel(userId, FeatureNameEnum.Advisor);
+
+                        await _featureUsageLogRepository.Register(featureUsageLog);
+                        await _featureUsageLogRepository.Commit();
 
                         return new APIResponse<string>(true, 200, "Prompt enviado e processado com sucesso!", messageContent, null);
                     }
@@ -104,15 +128,5 @@ namespace CurriculumAdapter.API.Services
             return embeddingGenerated.Value.ToFloats();
         }
 
-        private async Task<OpenAIFile> UploadFile(OpenAIFileClient fileClient, IFormFile file)
-        {
-            using (var stream = new MemoryStream())
-            {
-                await file.CopyToAsync(stream);
-                stream.Position = 0;
-
-                return await fileClient.UploadFileAsync(stream, file.FileName.Trim(), FileUploadPurpose.Assistants);
-            }
-        }
     }
 }

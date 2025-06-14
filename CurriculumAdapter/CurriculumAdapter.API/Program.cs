@@ -60,11 +60,13 @@ builder.Services.AddSingleton<QdrantContext>(new QdrantContext(qdrantHost));
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 builder.Services.AddScoped<IJobsCollectionRepository, JobsCollectionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IFeatureUsageLogRepository, FeatureUsageLogRepository>();
 
 builder.Services.AddScoped<IAdaptService, AdaptService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IAdvisorService, AdvisorService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 string secret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? builder.Configuration["JWT:Secret"]!;
 
@@ -128,6 +130,8 @@ builder.Services.AddCors(c =>
         p.AllowCredentials();
     });
 });
+
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
