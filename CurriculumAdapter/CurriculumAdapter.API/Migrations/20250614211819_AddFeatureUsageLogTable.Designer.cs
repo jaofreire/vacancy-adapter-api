@@ -3,6 +3,7 @@ using System;
 using CurriculumAdapter.API.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CurriculumAdapter.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250614211819_AddFeatureUsageLogTable")]
+    partial class AddFeatureUsageLogTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,7 +59,7 @@ namespace CurriculumAdapter.API.Migrations
                         .HasColumnName("feature_name");
 
                     b.Property<DateTime>("UsageDate")
-                        .HasColumnType("DATE")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("usage_date");
 
                     b.Property<Guid>("UserId")

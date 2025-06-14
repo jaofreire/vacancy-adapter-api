@@ -3,6 +3,7 @@ using System;
 using CurriculumAdapter.API.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CurriculumAdapter.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250614170824_ChangeUserTableName")]
+    partial class ChangeUserTableName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,31 +44,6 @@ namespace CurriculumAdapter.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("feedbacks", (string)null);
-                });
-
-            modelBuilder.Entity("CurriculumAdapter.API.Models.Logs.FeatureUsageLogModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("FeatureName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("feature_name");
-
-                    b.Property<DateTime>("UsageDate")
-                        .HasColumnType("DATE")
-                        .HasColumnName("usage_date");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("feature_usage_logs", (string)null);
                 });
 
             modelBuilder.Entity("CurriculumAdapter.API.Models.UserModel", b =>
