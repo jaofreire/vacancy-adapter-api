@@ -2,6 +2,7 @@
 using CurriculumAdapter.API.Models;
 using CurriculumAdapter.API.Response;
 using CurriculumAdapter.API.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +15,7 @@ namespace CurriculumAdapter.API.Controllers
         private readonly IUserService _service = service;
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<APIResponse<UserModel>>> Register(RegisterUserInputDTO input)
         {
             var result = await _service.Register(input);
@@ -25,6 +27,7 @@ namespace CurriculumAdapter.API.Controllers
         }
 
         [HttpGet]
+        [Authorize("Admin")]
         public async Task<ActionResult<APIResponse<UserModel>>> GetAll()
         {
             var result = await _service.GetAll();
@@ -33,6 +36,7 @@ namespace CurriculumAdapter.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize("EveryoneHasAccessPolicy")]
         public async Task<ActionResult<APIResponse<UserModel>>> GetById(Guid id)
         {
             var result = await _service.GetById(id);
@@ -44,6 +48,7 @@ namespace CurriculumAdapter.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize("EveryoneHasAccessPolicy")]
         public async Task<ActionResult<APIResponse<UserModel>>> Delete(Guid id)
         {
             var result = await _service.Delete(id);
