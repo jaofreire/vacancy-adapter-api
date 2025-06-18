@@ -45,14 +45,70 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
 
         }
 
-        public Task<string> CreateSubscription()
+        public async Task<CreateSubscriptionWithCreditCardResponse?> CreateSubscription(CreateSubscriptionWithCreditCardRequest request)
         {
-            throw new NotImplementedException();
+            var url = $"{_baseUrl}/subscriptions";
+            var jsonRequestBody = JsonSerializer.Serialize(request);
+
+            using var client = new HttpClient();
+
+            var requestContent = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(url),
+                Headers =
+                {
+                    {"accept", "application/json"},
+                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" }
+                },
+                Content = new StringContent(jsonRequestBody, new MediaTypeHeaderValue("application/json"))
+            };
+
+            var response = await client.SendAsync(requestContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var responseObject = JsonSerializer.Deserialize<CreateSubscriptionWithCreditCardResponse>(responseContent);
+
+                return responseObject;
+            }
+
+            return null;
         }
 
-        public Task<string> UniquePayment()
+        public async Task<UniquePaymentResponse?> UniquePayment()
         {
-            throw new NotImplementedException();
+            var url = $"{_baseUrl}/subscriptions";
+
+            var request = new UniquePaymentRequest();
+            var jsonRequestBody = JsonSerializer.Serialize(request);
+
+            using var client = new HttpClient();
+
+            var requestContent = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(url),
+                Headers =
+                {
+                    {"accept", "application/json"},
+                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" }
+                },
+                Content = new StringContent(jsonRequestBody, new MediaTypeHeaderValue("application/json"))
+            };
+
+            var response = await client.SendAsync(requestContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var responseObject = JsonSerializer.Deserialize<UniquePaymentResponse>(responseContent);
+
+                return responseObject;
+            }
+
+            return null;
         }
     }
 }

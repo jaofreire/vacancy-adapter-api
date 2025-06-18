@@ -5,8 +5,8 @@ namespace CurriculumAdapter.API.Data.Integrations.Interfaces
 {
     public interface IAsaasIntegration
     {
-        Task<string> CreateSubscription();
-        Task<string> UniquePayment();
+        Task<CreateSubscriptionWithCreditCardResponse?> CreateSubscription(CreateSubscriptionWithCreditCardRequest request);
+        Task<UniquePaymentResponse?> UniquePayment();
         Task<CreateCustomerResponse?> CreateCustumer(CreateCustumerRequest request);
     }
 }
