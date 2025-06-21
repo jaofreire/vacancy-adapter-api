@@ -26,6 +26,9 @@ namespace CurriculumAdapter.API.Data.Repositories.UnitOfWork
 
         public IUserRepository UserRepository => _userRepository ??= new UserRepository(_context);
 
+        public async Task SaveChanges()
+            => await _context.SaveChangesAsync();
+        
         public async Task BeginTransaction()
         {
             if (_transaction == null)
@@ -68,5 +71,7 @@ namespace CurriculumAdapter.API.Data.Repositories.UnitOfWork
                 _transaction = null;
             }
         }
+
+        
     }
 }

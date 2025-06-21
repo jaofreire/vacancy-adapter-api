@@ -7,6 +7,7 @@
         IJobsCollectionRepository JobsCollectionRepository { get; }
         IPaymentInfosRepository PaymentInfosRepository { get; }
         IUserRepository UserRepository { get; }
+        Task SaveChanges();
         Task BeginTransaction();
         Task Commit();
         Task RollBack();
