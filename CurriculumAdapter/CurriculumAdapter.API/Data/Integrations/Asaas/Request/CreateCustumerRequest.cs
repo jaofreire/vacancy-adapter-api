@@ -5,42 +5,42 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas.Request
 {
     public class CreateCustumerRequest
     {
-        public string Name { get; set; }  
+        public string name { get; set; }  
 
-        public string CpfCnpj { get; set; }  
+        public string cpfCnpj { get; set; }  
 
-        public string Email { get; set; }
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? MobilePhone { get; set; }  // Fone celular
+        public string email { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Address { get; set; }  // Logradouro
+        public string? mobilePhone { get; set; }  // Fone celular
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? AddressNumber { get; set; }  // Número do endereço
+        public string? address { get; set; }  // Logradouro
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Complement { get; set; }  // Complemento do endereço
+        public string? addressNumber { get; set; }  // Número do endereço
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Province { get; set; }  // Bairro
+        public string? complement { get; set; }  // Complemento do endereço
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? PostalCode { get; set; }  // CEP
-
-        public Guid ExternalReference { get; set; }  // Identificador externo
-
-        public bool? NotificationDisabled { get; set; }  // true para desabilitar notificações
+        public string? province { get; set; }  // Bairro
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? MunicipalInscription { get; set; }  // Inscrição municipal
+        public string? postalCode { get; set; }  // CEP
+
+        public string externalReference { get; set; }  // Identificador externo
+
+        public bool? notificationDisabled { get; set; }  // true para desabilitar notificações
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? StateInscription { get; set; }  // Inscrição estadual
+        public string? municipalInscription { get; set; }  // Inscrição municipal
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Observations { get; set; }  // Observações adicionais
+        public string? stateInscription { get; set; }  // Inscrição estadual
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? observations { get; set; }  // Observações adicionais
 
         public CreateCustumerRequest(
             string name,
@@ -52,27 +52,27 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas.Request
             string? complement,
             string? province, 
             string? postalCode,
-            Guid externalReference,
+            string externalReference,
             bool? notificationDisabled,
             string? municipalInscription,
             string? stateInscription,
             string? observations
             )
         {
-            Name = name;
-            CpfCnpj = cpfCnpj;
-            Email = email;
-            MobilePhone = mobilePhone;
-            Address = address;
-            AddressNumber = addressNumber;
-            Complement = complement;
-            Province = province;
-            PostalCode = postalCode;
-            ExternalReference = externalReference;
-            NotificationDisabled = notificationDisabled;
-            MunicipalInscription = municipalInscription;
-            StateInscription = stateInscription;
-            Observations = observations;
+            this.name = name;
+            this.cpfCnpj = cpfCnpj;
+            this.email = email;
+            this.mobilePhone = mobilePhone;
+            this.address = address;
+            this.addressNumber = addressNumber;
+            this.complement = complement;
+            this.province = province;
+            this.postalCode = postalCode;
+            this.externalReference = externalReference;
+            this.notificationDisabled = notificationDisabled;
+            this.municipalInscription = municipalInscription;
+            this.stateInscription = stateInscription;
+            this.observations = observations;
         }
 
         //public bool? ForeignCustomer { get; set; }  // true se for pagador estrangeiro

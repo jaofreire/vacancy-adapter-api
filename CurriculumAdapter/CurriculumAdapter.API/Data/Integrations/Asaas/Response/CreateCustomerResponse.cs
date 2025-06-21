@@ -2,6 +2,6 @@
 {
     public class CreateCustomerResponse
     {
-        public string Id { get; set; } = "";
+        public string id { get; set; }
     }
 }

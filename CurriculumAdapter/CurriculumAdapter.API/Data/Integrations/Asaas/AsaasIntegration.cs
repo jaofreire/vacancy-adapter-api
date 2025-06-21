@@ -10,7 +10,7 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
 {
     public class AsaasIntegration(IConfiguration configuration) : IAsaasIntegration
     {
-        private string _baseUrl = "https://api-sandbox.asaas.com/v3";
+        private string _baseUrl = "https://api.asaas.com/v3";
         private readonly IConfiguration _configuration = configuration;
         public async Task<CreateCustomerResponse?> CreateCustumer(CreateCustumerRequest request)
         {
@@ -26,16 +26,19 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
                 Headers =
                 {
                     {"accept", "application/json"},
-                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" }
+                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" },
+                    {"User-Agent", "CurriculumAdapter"}
+
                 },
                 Content = new StringContent(jsonRequestBody, new MediaTypeHeaderValue("application/json"))
             };
 
             var response = await client.SendAsync(requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
-                var responseContent = await response.Content.ReadAsStringAsync();
+                
                 var responseObject = JsonSerializer.Deserialize<CreateCustomerResponse>(responseContent);
 
                 return responseObject;
@@ -43,6 +46,33 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
 
             return null;
 
+        }
+
+        public async Task<bool> GetCustomerById(string customerId)
+        {
+            var url = $"{_baseUrl}/customers/{customerId}";
+
+            using var client = new HttpClient();
+
+            var requestContent = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(url),
+                Headers =
+                {
+                    {"accept", "application/json"},
+                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" },
+                    {"User-Agent", "CurriculumAdapter"}
+                }
+            };
+
+            var response = await client.SendAsync(requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+                return true;
+
+            return false;
         }
 
         public async Task<CreateSubscriptionWithCreditCardResponse?> CreateSubscription(CreateSubscriptionWithCreditCardRequest request)
@@ -59,16 +89,17 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
                 Headers =
                 {
                     {"accept", "application/json"},
-                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" }
+                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" },
+                    {"User-Agent", "CurriculumAdapter"}
                 },
                 Content = new StringContent(jsonRequestBody, new MediaTypeHeaderValue("application/json"))
             };
 
             var response = await client.SendAsync(requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
-                var responseContent = await response.Content.ReadAsStringAsync();
                 var responseObject = JsonSerializer.Deserialize<CreateSubscriptionWithCreditCardResponse>(responseContent);
 
                 return responseObject;
@@ -79,7 +110,7 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
 
         public async Task<UniquePaymentResponse?> UniquePayment()
         {
-            var url = $"{_baseUrl}/subscriptions";
+            var url = $"{_baseUrl}/paymentLinks";
 
             var request = new UniquePaymentRequest();
             var jsonRequestBody = JsonSerializer.Serialize(request);
@@ -93,16 +124,17 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
                 Headers =
                 {
                     {"accept", "application/json"},
-                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" }
+                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" },
+                    {"User-Agent", "CurriculumAdapter"}
                 },
                 Content = new StringContent(jsonRequestBody, new MediaTypeHeaderValue("application/json"))
             };
 
             var response = await client.SendAsync(requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
-                var responseContent = await response.Content.ReadAsStringAsync();
                 var responseObject = JsonSerializer.Deserialize<UniquePaymentResponse>(responseContent);
 
                 return responseObject;
@@ -110,5 +142,9 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
 
             return null;
         }
+
+        
+
+        //Implementar Tokenização do cartão de credito
     }
 }

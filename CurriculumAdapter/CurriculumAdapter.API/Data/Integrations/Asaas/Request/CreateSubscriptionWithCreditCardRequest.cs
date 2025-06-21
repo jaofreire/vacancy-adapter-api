@@ -28,6 +28,16 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas.Request
         public string postalCode { get; set; }
         public string addressNumber { get; set; }
         public string phone {  get; set; }
+
+        public CreditCardHolderInfo(string name, string email, string cpfCnpj, string postalCode, string addressNumber, string phone)
+        {
+            this.name = name;
+            this.email = email;
+            this.cpfCnpj = cpfCnpj;
+            this.postalCode = postalCode;
+            this.addressNumber = addressNumber;
+            this.phone = phone;
+        }
     }
 
     public class CreateSubscriptionWithCreditCardRequest
@@ -37,7 +47,7 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas.Request
         public double value { get; set; }
 
         // Vencimento da primeiro cobrança
-        public DateTime nextDueDate { get; set; }
+        public string nextDueDate { get; set; } = DateTime.Now.Date.ToString("yyyy-MM-dd");
         public string cycle { get; set; } = "MONTHLY";
         public string externalReference { get; set; } = "ca-subscriber";
 
@@ -55,11 +65,7 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas.Request
 
         public CreateSubscriptionWithCreditCardRequest(
             string customer,
-            string billingType,
             double value,
-            DateTime nextDueDate,
-            string cycle,
-            string externalReference,
             CreditCard? creditCard,
             CreditCardHolderInfo? creditCardHolderInfo,
             string? creditCardToken,
@@ -67,11 +73,7 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas.Request
             )
         {
             this.customer = customer;
-            this.billingType = billingType;
             this.value = value;
-            this.nextDueDate = nextDueDate;
-            this.cycle = cycle;
-            this.externalReference = externalReference;
             this.creditCard = creditCard;
             this.creditCardHolderInfo = creditCardHolderInfo;
             this.creditCardToken = creditCardToken;
