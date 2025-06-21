@@ -12,14 +12,14 @@ using System.Text;
 
 namespace CurriculumAdapter.API.Services
 {
-    public class AuthService(IUserRepository userRepository, IConfiguration configuration) : IAuthService
+    public class AuthService(IUnitOfWork unitOfWork, IConfiguration configuration) : IAuthService
     {
-        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IConfiguration _configuration = configuration;
 
         public async Task<APIResponse<string>> Login(LoginInputDTO loginInput)
         {
-            var existsUserByEmail = await _userRepository.Get(x => x.Email == loginInput.Email);
+            var existsUserByEmail = await _unitOfWork.UserRepository.Get(x => x.Email == loginInput.Email);
 
             if (existsUserByEmail.Any() is false)
                 return new APIResponse<string>(false, 404, "Usuário não encontrado");
