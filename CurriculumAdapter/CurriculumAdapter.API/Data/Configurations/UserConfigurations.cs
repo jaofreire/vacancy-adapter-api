@@ -13,6 +13,10 @@ namespace CurriculumAdapter.API.Data.Configurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnName("id");
 
+            builder.Property(x => x.AsaasCustomerId)
+                .HasColumnName("asaas_customer_id")
+                .IsRequired(false);
+
             builder.Property(x => x.Type)
                 .HasColumnName("type")
                 .IsRequired();
