@@ -1,4 +1,6 @@
 using CurriculumAdapter.API.Data.Context;
+using CurriculumAdapter.API.Data.Integrations.Asaas;
+using CurriculumAdapter.API.Data.Integrations.Interfaces;
 using CurriculumAdapter.API.Data.Repositories;
 using CurriculumAdapter.API.Data.Repositories.Interfaces;
 using CurriculumAdapter.API.Middleware;
@@ -61,12 +63,16 @@ builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 builder.Services.AddScoped<IJobsCollectionRepository, JobsCollectionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IFeatureUsageLogRepository, FeatureUsageLogRepository>();
+builder.Services.AddScoped<IPaymentInfosRepository, PaymentInfosRepository>();
 
 builder.Services.AddScoped<IAdaptService, AdaptService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IAdvisorService, AdvisorService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+builder.Services.AddScoped<IAsaasIntegration, AsaasIntegration>();
 
 string secret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? builder.Configuration["JWT:Secret"]!;
 
