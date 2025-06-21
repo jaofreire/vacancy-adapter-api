@@ -11,6 +11,5 @@ namespace CurriculumAdapter.API.Data.Repositories.Interfaces
         Task<IEnumerable<UserModel>> Get(Expression<Func<UserModel, bool>> predicate);
         void Update(UserModel model);
         void Delete(UserModel model);
-        Task Commit();
     }
 }

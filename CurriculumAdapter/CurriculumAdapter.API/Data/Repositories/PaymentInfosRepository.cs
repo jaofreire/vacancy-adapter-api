@@ -32,11 +32,6 @@ namespace CurriculumAdapter.API.Data.Repositories
 
         public void Delete(PaymentInfosModel model)
             => _context.PaymentInfos.Remove(model);
-
-
-        public async Task Commit()
-            => await _context.SaveChangesAsync();
-
-        
+ 
     }
 }

@@ -11,6 +11,5 @@ namespace CurriculumAdapter.API.Data.Repositories.Interfaces
         Task<IEnumerable<PaymentInfosModel>> Get(Expression<Func<PaymentInfosModel, bool>> predicate);
         void Update(PaymentInfosModel model);
         void Delete(PaymentInfosModel model);
-        Task Commit();
     }
 }

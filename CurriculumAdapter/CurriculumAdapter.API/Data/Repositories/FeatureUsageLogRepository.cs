@@ -22,7 +22,5 @@ namespace CurriculumAdapter.API.Data.Repositories
         public async Task<IEnumerable<FeatureUsageLogModel>> Get(Expression<Func<FeatureUsageLogModel, bool>> predicate)
             => await _context.FeatureUsageLogs.Where(predicate).ToListAsync();
 
-        public Task Commit()
-            => _context.SaveChangesAsync();
     }
 }

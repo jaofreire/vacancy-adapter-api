@@ -9,6 +9,5 @@ namespace CurriculumAdapter.API.Data.Repositories.Interfaces
         Task<IEnumerable<FeatureUsageLogModel>> GetAll();
         Task<FeatureUsageLogModel> GetById(Guid id);
         Task<IEnumerable<FeatureUsageLogModel>> Get(Expression<Func<FeatureUsageLogModel, bool>> predicate);
-        Task Commit();
     }
 }
