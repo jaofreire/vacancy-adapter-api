@@ -12,6 +12,7 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
     {
         private string _baseUrl = "https://api.asaas.com/v3";
         private readonly IConfiguration _configuration = configuration;
+
         public async Task<CreateCustomerResponse?> CreateCustumer(CreateCustumerRequest request)
         {
             var url = $"{_baseUrl}/customers";
@@ -143,8 +144,5 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
             return null;
         }
 
-        
-
-        //Implementar Tokenização do cartão de credito
     }
 }

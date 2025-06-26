@@ -92,7 +92,6 @@ namespace CurriculumAdapter.API.Services
                 asaasCustomerId = user.AsaasCustomerId;
             }
 
-            // FUTURAMENTE Criar Token do cartão de credito
             var creditCard = new CreditCard(input.CreditCardHolderName, input.CreditCardNumber, input.CreditCardExpiryMonth, input.CreditCardExpiryYear, input.ccv);
             var creditCardHolderInfo = new CreditCardHolderInfo(input.CreditCardHolderName, user.Email, input.CpfCnpj, input.PostalCode, input.AdressNumber, input.PhoneNumber);
 
