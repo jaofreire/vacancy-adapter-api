@@ -75,6 +75,104 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
 
             return false;
         }
+        
+        public async Task<GetSubscriptionsByCustomerIdResponse?> GetSubscriptionsByCustomerId(string customerId)
+        {
+            var url = $"{_baseUrl}/subscriptions?customer={customerId}";
+
+            using var client = new HttpClient();
+
+            var requestContent = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(url),
+                Headers =
+                {
+                    {"accept", "application/json"},
+                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" },
+                    {"User-Agent", "CurriculumAdapter"}
+
+                },
+            };
+
+            var response = await client.SendAsync(requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseObject = JsonSerializer.Deserialize<GetSubscriptionsByCustomerIdResponse>(responseContent);
+
+                return responseObject;
+            }
+
+            return null;
+
+        }
+        
+        public async Task<GetPaymentsBySubscriptionIdResponse?> GetPaymentsBySubscriptionId(string subscriptionId)
+        {
+            var url = $"{_baseUrl}/subscriptions/{subscriptionId}/payments";
+
+            using var client = new HttpClient();
+
+            var requestContent = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(url),
+                Headers =
+                {
+                    {"accept", "application/json"},
+                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" },
+                    {"User-Agent", "CurriculumAdapter"}
+
+                },
+            };
+
+            var response = await client.SendAsync(requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseObject = JsonSerializer.Deserialize<GetPaymentsBySubscriptionIdResponse>(responseContent);
+
+                return responseObject;
+            }
+
+            return null;
+        }
+
+        // implementar GetPayments
+        public async Task<GetUniquePaymentsByCustomerIdResponse?> GetUniquePaymentsByCustomerId(string customerId)
+        {
+            var url = $"{_baseUrl}/payments?customer={customerId}&installment=1";
+
+            using var client = new HttpClient();
+
+            var requestContent = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(url),
+                Headers =
+                {
+                    {"accept", "application/json"},
+                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" },
+                    {"User-Agent", "CurriculumAdapter"}
+
+                },
+            };
+
+            var response = await client.SendAsync(requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseObject = JsonSerializer.Deserialize<GetUniquePaymentsByCustomerIdResponse>(responseContent);
+
+                return responseObject;
+            }
+
+            return null;
+        }
 
         public async Task<CreateSubscriptionWithCreditCardResponse?> CreateSubscription(CreateSubscriptionWithCreditCardRequest request)
         {
