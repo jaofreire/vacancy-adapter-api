@@ -130,5 +130,59 @@ namespace CurriculumAdapter.API.Services
         {
             throw new NotImplementedException();
         }
+
+        public async Task<APIResponse<GetSubscriptionsByCustomerIdResponse>> GetSubscriptionsByCustomerId(string customerId)
+        {
+            var subscriptions = await _asaasIntegration.GetSubscriptionsByCustomerId(customerId);
+
+            if (subscriptions is null)
+                return new APIResponse<GetSubscriptionsByCustomerIdResponse>(false, 400, "Ocorreu um erro ao buscar Assinaturas de um cliente");
+
+            return new APIResponse<GetSubscriptionsByCustomerIdResponse>(true, 200, "Assinaturas de um cliente listadas com sucesso", subscriptions, null);
+        }
+
+        public async Task<APIResponse<GetPaymentsBySubscriptionIdResponse>> GetPaymentsBySubscriptionId(string subscriptionId)
+        {
+            var payments = await _asaasIntegration.GetPaymentsBySubscriptionId(subscriptionId);
+
+            if (payments is null)
+                return new APIResponse<GetPaymentsBySubscriptionIdResponse>(false, 400, "Ocorreu um erro ao buscar Cobranças de uma assinatura");
+
+            return new APIResponse<GetPaymentsBySubscriptionIdResponse>(true, 200, "Cobranças de uma assinatura listadas com sucesso", payments, null);
+        }
+
+        public async Task<APIResponse<GetUniquePaymentsByCustomerIdResponse>> GetUniquePaymentsByCustomerId(string customerId)
+        {
+            var payments = await _asaasIntegration.GetUniquePaymentsByCustomerId(customerId);
+
+            if (payments is null)
+                return new APIResponse<GetUniquePaymentsByCustomerIdResponse>(false, 400, "Ocorreu um erro ao buscar Cobranças de uma assinatura");
+
+            return new APIResponse<GetUniquePaymentsByCustomerIdResponse>(true, 200, "Cobranças de uma assinatura listadas com sucesso", payments, null);
+        }
+
+        public async Task<APIResponse<bool>> RemoveSubscription(string subscriptionId)
+        {
+            var removeResponse = await _asaasIntegration.RemoveSubscription(subscriptionId);
+
+            if (!removeResponse)
+                return new APIResponse<bool>(false, 400, "Ocorreu um erro ao remover Assinatura");
+
+            var userId = Guid.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            var user = await _unitOfWork.UserRepository.GetById(userId);
+
+            if(user is null)
+                return new APIResponse<bool>(false, 404, "Usuário não encontrado");
+
+            user.Type = UserTypeEnum.Default;
+
+            await _unitOfWork.BeginTransaction();
+
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.Commit();
+
+            return new APIResponse<bool>(true, 200, "Assinatura removida com sucesso");
+        }
     }
 }

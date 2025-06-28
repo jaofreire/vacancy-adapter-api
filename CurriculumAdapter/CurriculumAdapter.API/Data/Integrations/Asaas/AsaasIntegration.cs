@@ -49,6 +49,37 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
 
         }
 
+        public async Task<GetAllCustomersResponse?> GetAllCustomers()
+        {
+            var url = $"{_baseUrl}/customers";
+
+            using var client = new HttpClient();
+
+            var requestContent = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(url),
+                Headers =
+                {
+                    {"accept", "application/json"},
+                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" },
+                    {"User-Agent", "CurriculumAdapter"}
+                }
+            };
+
+            var response = await client.SendAsync(requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseObject = JsonSerializer.Deserialize<GetAllCustomersResponse>(responseContent);
+
+                return responseObject;
+            }
+
+            return null;
+        }
+
         public async Task<bool> GetCustomerById(string customerId)
         {
             var url = $"{_baseUrl}/customers/{customerId}";
@@ -141,7 +172,6 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
             return null;
         }
 
-        // implementar GetPayments
         public async Task<GetUniquePaymentsByCustomerIdResponse?> GetUniquePaymentsByCustomerId(string customerId)
         {
             var url = $"{_baseUrl}/payments?customer={customerId}&installment=1";
@@ -205,6 +235,33 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
             }
 
             return null;
+        }
+
+        public async Task<bool> RemoveSubscription(string subscriptionId)
+        {
+            var url = $"{_baseUrl}/subscriptions/{subscriptionId}";
+
+            using var client = new HttpClient();
+
+            var requestContent = new HttpRequestMessage
+            {
+                Method = HttpMethod.Delete,
+                RequestUri = new Uri(url),
+                Headers =
+                {
+                    {"accept", "application/json"},
+                    {"access_token", $"{_configuration["Asaas:ApiKey"] ?? Environment.GetEnvironmentVariable("ASAAS_API_KEY_PROD")}" },
+                    {"User-Agent", "CurriculumAdapter"}
+                },
+            };
+
+            var response = await client.SendAsync(requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+                return true;
+
+            return false;
         }
 
         public async Task<UniquePaymentResponse?> UniquePayment()
