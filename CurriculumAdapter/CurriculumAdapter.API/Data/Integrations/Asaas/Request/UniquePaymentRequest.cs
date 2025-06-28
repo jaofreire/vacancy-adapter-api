@@ -2,12 +2,16 @@
 {
     public class UniquePaymentRequest
     {
-        public string name { get; set; } = "Pagamento único Curriculum Adapter";
+        public string customer { get; set; }
         public string description { get; set; } = "Pagamento único disponibilizando acesso ilimitado ao CurriculumAdapter por 1 mês";
-        public string endDate { get; set; } = DateTime.Now.AddDays(1).Date.ToString();
+        public string dueDate { get; set; } = DateTime.Now.AddDays(1).Date.ToString("yyyy-MM-dd");
         public double value { get; set; } = 5;
         public string billingType { get; set; } = "UNDEFINED";
-        public string chargeType { get; set; } = "DETACHED";
-        public int dueDateLimitDays { get; set; } = 1;
+        public string externalReference { get; set; } = "unique-payment";
+
+        public UniquePaymentRequest(string customer)
+        {
+            this.customer = customer;
+        }
     }
 }

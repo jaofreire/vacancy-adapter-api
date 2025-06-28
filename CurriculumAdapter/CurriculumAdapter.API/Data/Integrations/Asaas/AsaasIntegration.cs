@@ -174,7 +174,7 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
 
         public async Task<GetUniquePaymentsByCustomerIdResponse?> GetUniquePaymentsByCustomerId(string customerId)
         {
-            var url = $"{_baseUrl}/payments?customer={customerId}&installment=1";
+            var url = $"{_baseUrl}/payments?customer={customerId}&externalReference=unique-payment";
 
             using var client = new HttpClient();
 
@@ -264,11 +264,9 @@ namespace CurriculumAdapter.API.Data.Integrations.Asaas
             return false;
         }
 
-        public async Task<UniquePaymentResponse?> UniquePayment()
+        public async Task<UniquePaymentResponse?> UniquePayment(UniquePaymentRequest request)
         {
-            var url = $"{_baseUrl}/paymentLinks";
-
-            var request = new UniquePaymentRequest();
+            var url = $"{_baseUrl}/payments";
             var jsonRequestBody = JsonSerializer.Serialize(request);
 
             using var client = new HttpClient();

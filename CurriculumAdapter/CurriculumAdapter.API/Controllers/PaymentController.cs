@@ -27,17 +27,33 @@ namespace CurriculumAdapter.API.Controllers
             return Ok(new APIResponse<GetAllCustomersResponse>(true, 200, "Clientes listados com sucesso", response, null));
         }
 
-        [HttpGet("generate-payment-link")]
+        [HttpPost("generate-unique-payment")]
         [Authorize("EveryoneHasAccessPolicy")]
-        public async Task<ActionResult<APIResponse<UniquePaymentResponse>>> GeneratePaymentLink()
+        public async Task<ActionResult<APIResponse<UniquePaymentResponse>>> GenerateUniquePayment(GenerateUniquePaymentInputDTO input)
         {
-            var uniquePaymentResponse = await _asaasIntegration.UniquePayment();
+            var uniquePaymentResponse = await _paymentService.GenerateUniquePayment(input);
 
-            if (uniquePaymentResponse is null)
-                return BadRequest(new APIResponse<UniquePaymentResponse>(false, 400, "Ocorreu um erro ao gerar link de pagamento unico"));
+            if (uniquePaymentResponse.Code is not 200)
+                return BadRequest(uniquePaymentResponse);
 
-            return Ok(new APIResponse<UniquePaymentResponse>(true, 200, "Link de pagamento unico gerado com sucesso", uniquePaymentResponse, null));
+            return Ok(uniquePaymentResponse);
         }
+
+        [HttpGet("generate-unique-payment/paymentInfo/{paymentInfoId}")]
+        [Authorize("EveryoneHasAccessPolicy")]
+        public async Task<ActionResult<APIResponse<UniquePaymentResponse>>> GenerateUniquePaymentWithPaymentInfoId(Guid paymentInfoId)
+        {
+            var uniquePaymentResponse = await _paymentService.GenerateUniquePaymentWithPaymentInfoId(paymentInfoId);
+
+            if (uniquePaymentResponse.Code is 404)
+                return NotFound(uniquePaymentResponse);
+
+            if(uniquePaymentResponse.Code is 400)
+                return BadRequest(uniquePaymentResponse);
+
+            return Ok(uniquePaymentResponse);
+        }
+
 
         [HttpPost("create-subscription-with-credit-card")]
         [Authorize("EveryoneHasAccessPolicy")]

@@ -126,6 +126,114 @@ namespace CurriculumAdapter.API.Services
             throw new NotImplementedException();
         }
 
+        public async Task<APIResponse<UniquePaymentResponse>> GenerateUniquePayment(GenerateUniquePaymentInputDTO input)
+        {
+            var userType = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role).Value;
+            var userId = Guid.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            var user = await _unitOfWork.UserRepository.GetById(userId);
+
+            if (user.Type is UserTypeEnum.Subscriber)
+                return new APIResponse<UniquePaymentResponse>(false, 400, "Usuário ja é Assinante");
+
+            await _unitOfWork.BeginTransaction();
+
+            var paymentInfos = new PaymentInfosModel(user.Id, input.PostalCode, input.Address, input.AdressNumber, input.PhoneNumber, input.CpfCnpj, "");
+            await _unitOfWork.PaymentInfosRepository.Register(paymentInfos);
+
+
+            string asaasCustomerId = "";
+
+            var createCustomerRequest = new CreateCustumerRequest
+                (
+                $"{user.FirstName} {user.LastName}",
+                input.CpfCnpj,
+                user.Email,
+                input.PhoneNumber,
+                input.Address,
+                input.AdressNumber,
+                null,
+                null,
+                input.PostalCode,
+                user.Id.ToString(),
+                false,
+                null,
+                null,
+                null
+                );
+
+            if (string.IsNullOrEmpty(user.AsaasCustomerId))
+            {
+                var createCustomerResponse = await _asaasIntegration.CreateCustumer(createCustomerRequest);
+
+                if (createCustomerResponse is null)
+                    return new APIResponse<UniquePaymentResponse>(false, 400, "Ocorreu um erro em CreateCustomer do Asaas");
+
+                asaasCustomerId = createCustomerResponse.id;
+
+                user.AsaasCustomerId = createCustomerResponse.id;
+
+                _unitOfWork.UserRepository.Update(user);
+            }
+            else
+            {
+                bool isAsaasCustomerExists = await _asaasIntegration.GetCustomerById(user.AsaasCustomerId);
+
+                if (isAsaasCustomerExists is false)
+                {
+                    var createCustomerResponse = await _asaasIntegration.CreateCustumer(createCustomerRequest);
+
+                    if (createCustomerResponse is null)
+                        return new APIResponse<UniquePaymentResponse>(false, 400, "Ocorreu um erro em CreateCustomer do Asaas");
+
+                    asaasCustomerId = createCustomerResponse.id;
+
+                    user.AsaasCustomerId = createCustomerResponse.id;
+
+                    _unitOfWork.UserRepository.Update(user);
+                }
+
+                asaasCustomerId = user.AsaasCustomerId;
+            }
+
+            await _unitOfWork.SaveChanges();
+
+            var uniquePayment = await _asaasIntegration.UniquePayment(new UniquePaymentRequest(asaasCustomerId));
+
+            if (uniquePayment is null)
+            {
+                await _unitOfWork.RollBack();
+                return new APIResponse<UniquePaymentResponse>(false, 400, "Ocorreu um erro ao gerar Cobrança única");
+            }
+               
+            await _unitOfWork.Commit();
+
+            return new APIResponse<UniquePaymentResponse>(true, 200, "Cobrança única gerada com sucesso", uniquePayment, null);
+        }
+
+        public async Task<APIResponse<UniquePaymentResponse>> GenerateUniquePaymentWithPaymentInfoId(Guid paymentInfoId)
+        {
+            var userType = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role).Value;
+            var userId = Guid.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            var user = await _unitOfWork.UserRepository.GetById(userId);
+
+            if (user.Type is UserTypeEnum.Subscriber)
+                return new APIResponse<UniquePaymentResponse>(false, 400, "Usuário ja é Assinante");
+
+            var paymentInfo = await _unitOfWork.PaymentInfosRepository.GetById(paymentInfoId);
+
+            if (paymentInfo is null)
+                return new APIResponse<UniquePaymentResponse>(false, 404, "Dados de pagamento não encontrados");
+
+            var uniquePayment = await _asaasIntegration.UniquePayment(new UniquePaymentRequest(user.AsaasCustomerId));
+
+            if(uniquePayment is null)
+                return new APIResponse<UniquePaymentResponse>(false, 400, "Ocorreu um erro ao gerar Pagamento Único");
+
+            return new APIResponse<UniquePaymentResponse>(true, 200, "Pagamento Único gerado com sucesso", uniquePayment, null);
+        }
+
         public Task GetSubscriptionById(Guid id)
         {
             throw new NotImplementedException();
