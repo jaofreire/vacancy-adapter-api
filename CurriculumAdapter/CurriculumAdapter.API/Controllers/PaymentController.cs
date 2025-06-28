@@ -67,6 +67,22 @@ namespace CurriculumAdapter.API.Controllers
             return Ok(response);
         }
 
+        [HttpPost("subscriptions/paymentInfo/{paymentInfoId}")]
+        [Authorize("EveryoneHasAccessPolicy")]
+        public async Task<ActionResult<APIResponse<CreateSubscriptionWithCreditCardResponse>>> CreateSubscriptionWithPaymentInfoId(Guid paymentInfoId, CreditCardInputDTO input)
+        {
+            var response = await _paymentService.CreateSubscriptionByPaymentInfoId(paymentInfoId);
+
+            if(response.Code is 404)
+                return NotFound(response);
+
+            if(response.Code is 400)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
+
+
         [HttpGet("subscriptions/customer/{customerId}")]
         [Authorize("EveryoneHasAccessPolicy")]
         public async Task<ActionResult<APIResponse<GetSubscriptionsByCustomerIdResponse>>> GetSubscriptionsByCustomerId(string customerId)

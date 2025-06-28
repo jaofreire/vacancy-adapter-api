@@ -121,9 +121,30 @@ namespace CurriculumAdapter.API.Services
             return new APIResponse<CreateSubscriptionWithCreditCardResponse>(true, 200, "Assinatura criada com sucesso!", createSubscriptionResponse, null);
         }
 
-        public Task CreateSubscriptionByPaymentInfoId(Guid id)
+        public async Task<APIResponse<CreateSubscriptionWithCreditCardResponse>> CreateSubscriptionByPaymentInfoId(Guid id, CreditCardInputDTO input)
         {
-            throw new NotImplementedException();
+            var userType = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role).Value;
+            var userId = Guid.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            var user = await _unitOfWork.UserRepository.GetById(userId);
+
+            if (user.Type is UserTypeEnum.Subscriber)
+                return new APIResponse<CreateSubscriptionWithCreditCardResponse>(false, 400, "Usuário ja é Assinante");
+
+            var paymentInfo = await _unitOfWork.PaymentInfosRepository.GetById(id);
+
+            if (paymentInfo is null)
+                return new APIResponse<CreateSubscriptionWithCreditCardResponse>(false, 404, "Dados de pagamento não encontrados");
+
+            var creditCard = new CreditCard(input.HolderName, input.Number, input.ExpiryMonth, input.ExpiryYear, input.Ccv);
+            var creditCardHolderInfo = new CreditCardHolderInfo($"{user.FirstName} + {user.LastName}", user.Email, paymentInfo.CpfCnpj, paymentInfo.PostalCode, paymentInfo.AdressNumber, paymentInfo.PhoneNumber);
+
+            var subscription = await _asaasIntegration.CreateSubscription(new CreateSubscriptionWithCreditCardRequest(user.AsaasCustomerId, 5, creditCard, creditCardHolderInfo, "", "192.168.112.1"));
+
+            if(subscription is null)
+                return new APIResponse<CreateSubscriptionWithCreditCardResponse>(false, 400, "Ocorreu um erro ao Criar Assinatura");
+
+            return new APIResponse<CreateSubscriptionWithCreditCardResponse>(true, 200, "Assinatura criada com sucesso", subscription, null);
         }
 
         public async Task<APIResponse<UniquePaymentResponse>> GenerateUniquePayment(GenerateUniquePaymentInputDTO input)
