@@ -11,7 +11,7 @@ namespace CurriculumAdapter.API.Data.Integrations.Interfaces
         Task<GetSubscriptionsByCustomerIdResponse?> GetSubscriptionsByCustomerId(string customerId);
         Task<GetPaymentsBySubscriptionIdResponse?> GetPaymentsBySubscriptionId(string subscriptionId);
         Task<GetUniquePaymentsByCustomerIdResponse?> GetUniquePaymentsByCustomerId(string customerId);
-        Task<UniquePaymentResponse?> UniquePayment();
+        Task<UniquePaymentResponse?> UniquePayment(UniquePaymentRequest request);
         Task<CreateCustomerResponse?> CreateCustumer(CreateCustumerRequest request);
         Task<bool> RemoveSubscription(string subscriptionId);
     }

@@ -68,6 +68,7 @@ builder.Services.AddScoped<IAdvisorService, AdvisorService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPaymentInfosService, PaymentInfosService>();
 
 builder.Services.AddScoped<IAsaasIntegration, AsaasIntegration>();
 
