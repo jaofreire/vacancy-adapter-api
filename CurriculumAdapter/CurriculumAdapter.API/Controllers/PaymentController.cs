@@ -71,7 +71,7 @@ namespace CurriculumAdapter.API.Controllers
         [Authorize("EveryoneHasAccessPolicy")]
         public async Task<ActionResult<APIResponse<CreateSubscriptionWithCreditCardResponse>>> CreateSubscriptionWithPaymentInfoId(Guid paymentInfoId, CreditCardInputDTO input)
         {
-            var response = await _paymentService.CreateSubscriptionByPaymentInfoId(paymentInfoId);
+            var response = await _paymentService.CreateSubscriptionByPaymentInfoId(paymentInfoId, input);
 
             if(response.Code is 404)
                 return NotFound(response);
