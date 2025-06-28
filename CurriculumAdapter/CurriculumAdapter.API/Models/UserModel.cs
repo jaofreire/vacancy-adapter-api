@@ -5,6 +5,7 @@ namespace CurriculumAdapter.API.Models
     public class UserModel
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+        public string AsaasCustomerId { get; set; } = string.Empty;
         public UserTypeEnum Type { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;

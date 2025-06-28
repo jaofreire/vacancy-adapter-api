@@ -11,6 +11,7 @@ namespace CurriculumAdapter.API.Data.Context
         public DbSet<FeedbackModel> Feedbacks { get; set; }
         public DbSet<UserModel> Users { get; set; }
         public DbSet<FeatureUsageLogModel> FeatureUsageLogs { get; set; }
+        public DbSet<PaymentInfosModel> PaymentInfos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

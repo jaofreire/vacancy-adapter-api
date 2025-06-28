@@ -30,9 +30,5 @@ namespace CurriculumAdapter.API.Data.Repositories
         public void Delete(UserModel model)
             => _context.Users.Remove(model);
 
-
-        public Task Commit()
-            => _context.SaveChangesAsync();
-        
     }
 }

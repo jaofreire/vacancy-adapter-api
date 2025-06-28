@@ -20,17 +20,15 @@ namespace CurriculumAdapter.API.Services
     {
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IJobsCollectionRepository _jobsCollectionRepository;
-        private readonly IFeatureUsageLogRepository _featureUsageLogRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly string _apiKeyOpenAI;
         private readonly string _assistantId;
 
-        public AdvisorService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IJobsCollectionRepository jobsCollectionRepository, IFeatureUsageLogRepository featureUsageLogRepository)
+        public AdvisorService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IUnitOfWork unitOfWork)
         {
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
-            _jobsCollectionRepository = jobsCollectionRepository;
-            _featureUsageLogRepository = featureUsageLogRepository;
+            _unitOfWork = unitOfWork;
             _apiKeyOpenAI = _configuration["OpenAI:ApiKey"] ?? Environment.GetEnvironmentVariable("OPEN_AI_API_KEY")!;
             _assistantId = _configuration["OpenAI:AdvisorAssistantId"] ?? Environment.GetEnvironmentVariable("ADVISOR_ASSISTANT_ID")!;
         }
@@ -43,7 +41,7 @@ namespace CurriculumAdapter.API.Services
 
             if (userType == UserTypeEnum.Default.ToString())
             {
-                var userFeatureUsageLogsToday = await _featureUsageLogRepository.Get(
+                var userFeatureUsageLogsToday = await _unitOfWork.FeatureUsageLogRepository.Get(
                     x => x.UserId == userId
                     && x.UsageDate.Date == DateTime.Now.Date
                     && x.FeatureName == FeatureNameEnum.Advisor.ToString());
@@ -61,7 +59,7 @@ namespace CurriculumAdapter.API.Services
             {
                 //var uploadResponse = await UploadFile(fileClient, file);
                 var embedding = await GenerateEmbedding(curriculumData);
-                var similarJobs = await _jobsCollectionRepository.SearchJobsBySimilarVectors(embedding);
+                var similarJobs = await _unitOfWork.JobsCollectionRepository.SearchJobsBySimilarVectors(embedding);
 
                 var knowledgeBase = new StringBuilder();
 
@@ -99,8 +97,10 @@ namespace CurriculumAdapter.API.Services
 
                         var featureUsageLog = new FeatureUsageLogModel(userId, FeatureNameEnum.Advisor);
 
-                        await _featureUsageLogRepository.Register(featureUsageLog);
-                        await _featureUsageLogRepository.Commit();
+                        await _unitOfWork.BeginTransaction();
+
+                        await _unitOfWork.FeatureUsageLogRepository.Register(featureUsageLog);
+                        await _unitOfWork.Commit();
 
                         return new APIResponse<string>(true, 200, "Prompt enviado e processado com sucesso!", messageContent, null);
                     }

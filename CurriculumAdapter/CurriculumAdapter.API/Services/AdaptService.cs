@@ -16,15 +16,15 @@ namespace CurriculumAdapter.API.Services
     {
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IFeatureUsageLogRepository _featureUsageLogRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly string _apiKeyOpenAI;
         private readonly string _assistantId;
 
-        public AdaptService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IFeatureUsageLogRepository featureUsageLogRepository)
+        public AdaptService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IUnitOfWork unitOfWork)
         {
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
-            _featureUsageLogRepository = featureUsageLogRepository;
+            _unitOfWork = unitOfWork;
             _apiKeyOpenAI = _configuration["OpenAI:ApiKey"] ?? Environment.GetEnvironmentVariable("OPEN_AI_API_KEY")!;
             _assistantId = _configuration["OpenAI:AssistantIdGPT4.1Mini"] ?? Environment.GetEnvironmentVariable("ASSISTANT_ID_GPT_41_MINI")!;
         }
@@ -42,7 +42,7 @@ namespace CurriculumAdapter.API.Services
 
             if (userType == UserTypeEnum.Default.ToString())
             {
-                var userFeatureUsageLogsToday = await _featureUsageLogRepository.Get(
+                var userFeatureUsageLogsToday = await _unitOfWork.FeatureUsageLogRepository.Get(
                     x => x.UserId == userId
                     && x.UsageDate.Date == DateTime.Now.Date
                     && x.FeatureName == FeatureNameEnum.CurriculumAdapter.ToString());
@@ -101,8 +101,10 @@ namespace CurriculumAdapter.API.Services
 
                             var featureUsageLog = new FeatureUsageLogModel(userId, FeatureNameEnum.CurriculumAdapter);
 
-                            await _featureUsageLogRepository.Register(featureUsageLog);
-                            await _featureUsageLogRepository.Commit();
+                            await _unitOfWork.BeginTransaction();
+
+                            await _unitOfWork.FeatureUsageLogRepository.Register(featureUsageLog);
+                            await _unitOfWork.Commit();
 
                             return new APIResponse<AssistantResponse>(true, 200, "Prompt enviado e processado com sucesso!", assistantResponse, null);
                         }

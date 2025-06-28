@@ -13,11 +13,11 @@ namespace CurriculumAdapter.API.Data.Repositories
             => await _dbContext.Feedbacks.ToListAsync();
 
         public async Task RegisterFeedback(FeedbackModel model)
-        {
-            await _dbContext.Feedbacks.AddAsync(model);
-            await _dbContext.SaveChangesAsync();
-        }
-            
+            => await _dbContext.Feedbacks.AddAsync(model);
+
+
+
+
 
     }
 }

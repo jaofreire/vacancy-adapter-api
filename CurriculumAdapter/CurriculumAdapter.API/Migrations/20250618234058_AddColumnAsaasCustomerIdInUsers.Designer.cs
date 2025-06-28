@@ -3,6 +3,7 @@ using System;
 using CurriculumAdapter.API.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CurriculumAdapter.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250618234058_AddColumnAsaasCustomerIdInUsers")]
+    partial class AddColumnAsaasCustomerIdInUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,52 +69,6 @@ namespace CurriculumAdapter.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("feature_usage_logs", (string)null);
-                });
-
-            modelBuilder.Entity("CurriculumAdapter.API.Models.PaymentInfosModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("address");
-
-                    b.Property<string>("AdressNumber")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("adress_number");
-
-                    b.Property<string>("CpfCnpj")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("cpf_cnpj");
-
-                    b.Property<string>("CreditCardToken")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("credit_card_token");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("phone_number");
-
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("postal_code");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("payment_infos", (string)null);
                 });
 
             modelBuilder.Entity("CurriculumAdapter.API.Models.UserModel", b =>

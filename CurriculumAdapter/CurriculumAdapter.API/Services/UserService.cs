@@ -8,13 +8,13 @@ using CurriculumAdapter.API.Utils;
 
 namespace CurriculumAdapter.API.Services
 {
-    public class UserService(IUserRepository repository) : IUserService
+    public class UserService(IUnitOfWork unitOfWork) : IUserService
     {
-        private readonly IUserRepository _repository = repository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<APIResponse<UserModel>> Register(RegisterUserInputDTO input)
         {
-            var existsSameEmailUser = await _repository.Get(x => x.Email == input.Email);
+            var existsSameEmailUser = await _unitOfWork.UserRepository.Get(x => x.Email == input.Email);
 
             if (existsSameEmailUser.Any())
                 return new APIResponse<UserModel>(false, 400, "Já existe uma conta com este Email, tente fazer Login ou recuperar sua senha");
@@ -30,23 +30,24 @@ namespace CurriculumAdapter.API.Services
                 PasswordHash = passwordHash,
             };
 
-            //CRIAR HASH DA SENHA
-            await _repository.Register(newUser);
-            await _repository.Commit();
+            await _unitOfWork.BeginTransaction();
+
+            await _unitOfWork.UserRepository.Register(newUser);
+            await _unitOfWork.Commit();
 
             return new APIResponse<UserModel>(true, 200, "Usuário cadastrado com sucesso!");
         }
 
         public async Task<APIResponse<UserModel>> GetAll()
         {
-            var users = await _repository.GetAll();
+            var users = await _unitOfWork.UserRepository.GetAll();
 
             return new APIResponse<UserModel>(true, 200, "Usuários buscados com sucesso!", null, users);
         }
 
         public async Task<APIResponse<UserModel>> GetById(Guid id)
         {
-            var user = await _repository.GetById(id);
+            var user = await _unitOfWork.UserRepository.GetById(id);
 
             if(user is null)
                 return new APIResponse<UserModel>(false, 404, "Usuário não encontrado");
@@ -61,13 +62,15 @@ namespace CurriculumAdapter.API.Services
 
         public async Task<APIResponse<UserModel>> Delete(Guid id)
         {
-            var user = await _repository.GetById(id);
+            var user = await _unitOfWork.UserRepository.GetById(id);
 
             if (user is null)
                 return new APIResponse<UserModel>(false, 404, "Usuário não encontrado");
 
-            _repository.Delete(user);
-            await _repository.Commit();
+            await _unitOfWork.BeginTransaction();
+
+            _unitOfWork.UserRepository.Delete(user);
+            await _unitOfWork.Commit();
 
             return new APIResponse<UserModel>(true, 200, "Usuário removido com sucesso!");
         }
