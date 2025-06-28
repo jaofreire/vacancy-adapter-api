@@ -7,7 +7,7 @@ namespace CurriculumAdapter.API.Services.Interface
     public interface IPaymentService
     {
         Task<APIResponse<CreateSubscriptionWithCreditCardResponse>> CreateSubscription(CreateSubscriptionInputDTO input);
-        Task<APIResponse<CreateSubscriptionWithCreditCardResponse>> CreateSubscriptionByPaymentInfoId(Guid id);
+        Task<APIResponse<CreateSubscriptionWithCreditCardResponse>> CreateSubscriptionByPaymentInfoId(Guid id, CreditCardInputDTO input);
         Task GetSubscriptionById(Guid id);
         Task<APIResponse<UniquePaymentResponse>> GenerateUniquePayment(GenerateUniquePaymentInputDTO input);
         Task<APIResponse<UniquePaymentResponse>> GenerateUniquePaymentWithPaymentInfoId(Guid paymentInfoId);
