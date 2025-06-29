@@ -26,7 +26,7 @@
         int? InstallmentNumber,
         string? CreditDate,
         object? Custody,
-        string EstimatedCreditDate,
+        string? EstimatedCreditDate,
         string InvoiceUrl,
         string? BankSlipUrl,
         string? TransactionReceiptUrl,
