@@ -2,7 +2,8 @@
 {
     public enum SubscriptionEventEnum
     {
-        SUBSCRIPTION_UPDATED = 0,
-        SUBSCRIPTION_DELETED = 1
+        SUBSCRIPTION_CREATED = 0,
+        SUBSCRIPTION_UPDATED = 1,
+        SUBSCRIPTION_DELETED = 2
     }
 }
