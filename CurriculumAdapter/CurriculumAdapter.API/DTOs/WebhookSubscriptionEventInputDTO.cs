@@ -15,7 +15,6 @@
        string Status,
        bool Deleted,
        bool SendPaymentByPostalService,
-       CreditCardWebHook? CreditCard,
        Discount Discount,
        Fine Fine,
        Interest Interest,
