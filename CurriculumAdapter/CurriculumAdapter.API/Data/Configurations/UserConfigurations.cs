@@ -17,6 +17,10 @@ namespace CurriculumAdapter.API.Data.Configurations
                 .HasColumnName("asaas_customer_id")
                 .IsRequired(false);
 
+            builder.Property(x => x.CurrentSubscriptionId)
+                .HasColumnName("current_subscription_id")
+                .IsRequired(false);
+
             builder.Property(x => x.Type)
                 .HasColumnName("type")
                 .IsRequired();
@@ -36,6 +40,10 @@ namespace CurriculumAdapter.API.Data.Configurations
             builder.Property(x => x.PasswordHash)
                 .HasColumnName("password_hash")
                 .IsRequired();
+
+            builder.Property(x => x.SubscriptionEndDate)
+                .HasColumnName("subscription_end_date")
+                .IsRequired(false);
         }
     }
 }
