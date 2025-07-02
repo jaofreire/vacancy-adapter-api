@@ -84,7 +84,7 @@
         string Reason
     );
 
-    public record WebhookEventInputDTO
+    public record WebhookPaymentEventInputDTO
         (
         string Id,
         string Event,
