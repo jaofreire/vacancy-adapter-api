@@ -21,6 +21,7 @@ namespace CurriculumAdapter.API.Controllers
             if(eventInput.Event == PaymentEventEnum.PAYMENT_CONFIRMED.ToString())
             {
                 string? subscriptionId = eventInput.Payment.Subscription;
+                //Lógica para cobranças de assinaturas
                 if (!string.IsNullOrEmpty(subscriptionId))
                 {
                     var existsSubscriptionUser = await _unitOfWork.UserRepository.Get(x => x.CurrentSubscriptionId == subscriptionId);
@@ -71,9 +72,11 @@ namespace CurriculumAdapter.API.Controllers
 
                 var user = userExists.First();
 
-                user.Type = UserTypeEnum.Subscriber;
+                if (user.Type == UserTypeEnum.Subscriber)
+                    return BadRequest(new APIResponse<string>(false, 400, "Usuário ja é assinante, espere até o vencimento da assinatura para renovar via pagamento único"));
 
-                //Atualizar SubscriptionEndDate para o mesmo dia no mes seguinte
+                user.Type = UserTypeEnum.Subscriber;
+                user.SubscriptionEndDate = DateTime.Now.AddMonths(1).ToString("dd/MM/yyyy");
 
                 _unitOfWork.UserRepository.Update(user);
                 await _unitOfWork.Commit();
