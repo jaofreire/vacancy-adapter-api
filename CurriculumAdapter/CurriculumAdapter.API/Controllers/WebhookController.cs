@@ -46,7 +46,7 @@ namespace CurriculumAdapter.API.Controllers
 
                     if (subscriptionUser.Type == UserTypeEnum.Subscriber)
                     {
-                        subscriptionUser.SubscriptionEndDate = currentSubscription.nextDueDate.ToString();
+                        subscriptionUser.SubscriptionEndDate = currentSubscription.nextDueDate.ToString("dd/MM/yyyy");
 
                         _unitOfWork.UserRepository.Update(subscriptionUser);
                         await _unitOfWork.Commit();
@@ -55,7 +55,7 @@ namespace CurriculumAdapter.API.Controllers
                     }
 
                     subscriptionUser.Type = UserTypeEnum.Subscriber;
-                    subscriptionUser.SubscriptionEndDate = currentSubscription.nextDueDate.ToString();
+                    subscriptionUser.SubscriptionEndDate = currentSubscription.nextDueDate.ToString("dd/MM/yyyy");
 
                     _unitOfWork.UserRepository.Update(subscriptionUser);
                     await _unitOfWork.Commit();
