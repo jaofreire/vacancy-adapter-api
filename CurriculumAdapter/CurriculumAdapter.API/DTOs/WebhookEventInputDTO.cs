@@ -15,7 +15,7 @@
         decimal? OriginalValue,
         decimal? InterestValue,
         string? NossoNumero,
-        string Description,
+        string? Description,
         string ExternalReference,
         string BillingType,
         string Status,
@@ -48,8 +48,7 @@
 
     public record CreditCardWebHook(
         string CreditCardNumber,
-        string CreditCardBrand,
-        string CreditCardToken
+        string CreditCardBrand
     );
 
     public record Discount(
