@@ -63,28 +63,35 @@ namespace CurriculumAdapter.API.Controllers
 
                     return Ok(new APIResponse<string>(true, 200, "Pagamento da assinatura confirmado, usuário agora é Assinante"));
                 }
-
-                //Lógica para Pagamentos únicos
-                var userExists = await _unitOfWork.UserRepository.Get(x => x.AsaasCustomerId == eventInput.Payment.Customer);
-
-                if (!userExists.Any())
-                    return NotFound(new APIResponse<string>(false, 404, "Usuário não encontrado"));
-
-                var user = userExists.First();
-
-                if (user.Type == UserTypeEnum.Subscriber)
-                    return BadRequest(new APIResponse<string>(false, 400, "Usuário ja é assinante, espere até o vencimento da assinatura para renovar via pagamento único"));
-
-                user.Type = UserTypeEnum.Subscriber;
-                user.SubscriptionEndDate = DateTime.Now.AddMonths(1).ToString("dd/MM/yyyy");
-
-                _unitOfWork.UserRepository.Update(user);
-                await _unitOfWork.Commit();
-
-                return Ok(new APIResponse<string>(true, 200, "Pagamento confirmado e usuário atualizado com sucesso"));
             } 
 
-            return Ok(new APIResponse<string>(true, 200, "Webhook recebido porém pagamento ainda não foi confirmado"));
+            if(eventInput.Event == PaymentEventEnum.PAYMENT_RECEIVED.ToString())
+            {
+                if (string.IsNullOrEmpty(eventInput.Payment.Subscription))
+                {
+                    //Lógica para Pagamentos únicos
+                    var userExists = await _unitOfWork.UserRepository.Get(x => x.AsaasCustomerId == eventInput.Payment.Customer);
+
+                    if (!userExists.Any())
+                        return NotFound(new APIResponse<string>(false, 404, "Usuário não encontrado"));
+
+                    var user = userExists.First();
+
+                    if (user.Type == UserTypeEnum.Subscriber)
+                        return BadRequest(new APIResponse<string>(false, 400, "Usuário ja é assinante, espere até o vencimento da assinatura para renovar via pagamento único"));
+
+                    user.Type = UserTypeEnum.Subscriber;
+                    user.SubscriptionEndDate = DateTime.Now.AddMonths(1).ToString("dd/MM/yyyy");
+
+                    _unitOfWork.UserRepository.Update(user);
+                    await _unitOfWork.Commit();
+
+                    return Ok(new APIResponse<string>(true, 200, "Pagamento confirmado e usuário atualizado com sucesso"));
+                }
+                
+            }
+
+            return Ok(new APIResponse<string>(true, 200, "Webhook de cobranças recebido com sucesso"));
         }
 
         [HttpPost("subscription-status-update")]
