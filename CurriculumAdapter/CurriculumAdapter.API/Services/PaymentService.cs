@@ -290,19 +290,19 @@ namespace CurriculumAdapter.API.Services
             return new APIResponse<GetUniquePaymentsByCustomerIdResponse>(true, 200, "Cobranças de uma assinatura listadas com sucesso", payments, null);
         }
 
-        public async Task<APIResponse<bool>> RemoveSubscription(string subscriptionId)
+        public async Task<APIResponse<string>> RemoveSubscription(string subscriptionId)
         {
             var removeResponse = await _asaasIntegration.RemoveSubscription(subscriptionId);
 
             if (!removeResponse)
-                return new APIResponse<bool>(false, 400, "Ocorreu um erro ao remover Assinatura");
+                return new APIResponse<string>(false, 400, "Ocorreu um erro ao remover Assinatura");
 
             var userId = Guid.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
             var user = await _unitOfWork.UserRepository.GetById(userId);
 
             if(user is null)
-                return new APIResponse<bool>(false, 404, "Usuário não encontrado");
+                return new APIResponse<string>(false, 404, "Usuário não encontrado");
 
             user.Type = UserTypeEnum.Default;
 
@@ -311,7 +311,7 @@ namespace CurriculumAdapter.API.Services
             _unitOfWork.UserRepository.Update(user);
             await _unitOfWork.Commit();
 
-            return new APIResponse<bool>(true, 200, "Assinatura removida com sucesso");
+            return new APIResponse<string>(true, 200, "Assinatura removida com sucesso");
         }
     }
 }
