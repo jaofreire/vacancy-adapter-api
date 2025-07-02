@@ -118,6 +118,8 @@ namespace CurriculumAdapter.API.Controllers
                 await _unitOfWork.BeginTransaction();
 
                 user.Type = UserTypeEnum.Default;
+                user.CurrentSubscriptionId = "";
+                user.SubscriptionEndDate = "";
 
                 _unitOfWork.UserRepository.Update(user);
                 await _unitOfWork.Commit();
