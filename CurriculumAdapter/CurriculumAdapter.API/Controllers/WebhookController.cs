@@ -63,13 +63,11 @@ namespace CurriculumAdapter.API.Controllers
 
                     return Ok(new APIResponse<string>(true, 200, "Pagamento da assinatura confirmado, usuário agora é Assinante"));
                 }
-            } 
 
-            if(eventInput.Event == PaymentEventEnum.PAYMENT_RECEIVED.ToString())
-            {
-                if (string.IsNullOrEmpty(eventInput.Payment.Subscription))
+                //Logica para cobranças unicas que não sejam pix ou boleto
+                //É necessário esta condição pois esses métodos de pagamento só são confirmados quando o valor for recebido no Asaas
+                if(eventInput.Payment.BillingType != "BOLETO" && eventInput.Payment.BillingType != "PIX")
                 {
-                    //Lógica para Pagamentos únicos
                     var userExists = await _unitOfWork.UserRepository.Get(x => x.AsaasCustomerId == eventInput.Payment.Customer);
 
                     if (!userExists.Any())
@@ -80,6 +78,8 @@ namespace CurriculumAdapter.API.Controllers
                     if (user.Type == UserTypeEnum.Subscriber)
                         return BadRequest(new APIResponse<string>(false, 400, "Usuário ja é assinante, espere até o vencimento da assinatura para renovar via pagamento único"));
 
+                    await _unitOfWork.BeginTransaction();
+
                     user.Type = UserTypeEnum.Subscriber;
                     user.SubscriptionEndDate = DateTime.Now.AddMonths(1).ToString("dd/MM/yyyy");
 
@@ -87,6 +87,40 @@ namespace CurriculumAdapter.API.Controllers
                     await _unitOfWork.Commit();
 
                     return Ok(new APIResponse<string>(true, 200, "Pagamento confirmado e usuário atualizado com sucesso"));
+                }
+
+            } 
+
+            if(eventInput.Event == PaymentEventEnum.PAYMENT_RECEIVED.ToString())
+            {
+                if (string.IsNullOrEmpty(eventInput.Payment.Subscription))
+                {
+                    //Lógica para Pagamentos únicos
+                    //É necessário esta condição pois esses métodos de pagamento só são confirmados quando o valor for recebido no Asaas
+                    if (eventInput.Payment.BillingType == "BOLETO" || eventInput.Payment.BillingType == "PIX")
+                    {
+                        var userExists = await _unitOfWork.UserRepository.Get(x => x.AsaasCustomerId == eventInput.Payment.Customer);
+
+                        if (!userExists.Any())
+                            return NotFound(new APIResponse<string>(false, 404, "Usuário não encontrado"));
+
+                        var user = userExists.First();
+
+                        if (user.Type == UserTypeEnum.Subscriber)
+                            return BadRequest(new APIResponse<string>(false, 400, "Usuário ja é assinante, espere até o vencimento da assinatura para renovar via pagamento único"));
+
+                        await _unitOfWork.BeginTransaction();
+
+                        user.Type = UserTypeEnum.Subscriber;
+                        user.SubscriptionEndDate = DateTime.Now.AddMonths(1).ToString("dd/MM/yyyy");
+
+                        _unitOfWork.UserRepository.Update(user);
+                        await _unitOfWork.Commit();
+
+                        return Ok(new APIResponse<string>(true, 200, "Pagamento confirmado e usuário atualizado com sucesso"));
+
+                    }
+                    
                 }
                 
             }
