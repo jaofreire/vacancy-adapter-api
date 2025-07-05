@@ -155,6 +155,8 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.UseMiddleware<SubscriptionValidationHandler>();
+
 app.MapControllers().RequireRateLimiting("RateLimitPolicy");
 
 app.Run();

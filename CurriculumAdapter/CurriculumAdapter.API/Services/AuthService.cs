@@ -7,6 +7,7 @@ using CurriculumAdapter.API.Services.Interface;
 using CurriculumAdapter.API.Utils;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Text;
 
