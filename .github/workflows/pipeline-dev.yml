@@ -1,0 +1,71 @@
+name: Deploy API to VPS Development Environment
+
+on:
+ workflow_dispatch:
+ push:
+  branches: ['development']
+  
+
+
+jobs:
+ build:
+  runs-on: ubuntu-latest
+  environment: Dev
+
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+
+    - name: Restore Dependencies
+      run: dotnet restore ${{ github.workspace }}/CurriculumAdapter/CurriculumAdapter.sln
+
+    - name: Build
+      run: dotnet build --no-restore ${{ github.workspace }}/CurriculumAdapter/CurriculumAdapter.sln
+
+    - name: Publish Build
+      run: dotnet publish -c Release -o ${{ github.workspace }}/out ${{ github.workspace }}/CurriculumAdapter/CurriculumAdapter.API/CurriculumAdapter.API.csproj
+
+    - name: Login Docker
+      uses: docker/login-action@v3.5.0
+      with: 
+       Username: ${{ secrets.DOCKERHUB_USERNAME }}
+       Password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    - name: Build Docker Image
+      run: docker build -t ${{ secrets.DOCKERHUB_REPO }}:${{ github.sha }} ${{ github.workspace }}/CurriculumAdapter/CurriculumAdapter.API/Dockerfile .
+
+    - name: Push image to DockerHub
+      run: docker push ${{ secrets.DOCKERHUB_REPO }}:${{ github.sha }}
+      
+    - name: Deploy to VPS
+      run: |
+       echo "Initializing ssh-agent"
+       eval "$(ssh-agent -s)"
+       
+       echo "Saving ssh private key into ssh-agent memory"
+       echo "${{ secrets.VPS_PRIVATE_KEY }}" | ssh-add -
+
+       echo "Accessing VPS via SSH and creating the docker container"
+       ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} /
+       "docker pull ${{ secrets.DOCKERHUB_REPO }}:${{ github.sha }} && /
+        docker stop ca_api_dev || true && /
+        docker container rm ca_api_dev || true && /
+        docker run -d --name ca_api_dev -p 8080:8080 -p 8083:8083 /
+         -e ASPNETCORE_Kestrel__Certificates__Default__Path=/https-certs/aspnetcore.pfx /
+         -e ASPNETCORE_Kestrel__Certificates__Default__Password=iqwdf93jr9023njrm0923mf2qom3 /
+         -e DATABASE_CONNECTION="${{ secrets.DATABASE_CONNECTION }}" /
+         -e RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCH_SECRET_KEY }} /
+         -e QDRANT_HOST=${{ secrets.QDRANT_HOST }} /
+         -e OPEN_AI_API_KEY=${{ secrets.OPENAI_API_KEY }} /
+         -e JWT_SECRET="${{ secrets.JWT_SECRET }}" /
+         -e CORS_LOCALHOST_URL=${{ secrets.CORS_LOCALHOST_URL }} /
+         -e CORS_CLIENT_URL=${{ secrets.CORS_CLIENT_URL }} /
+         -e ASSISTANT_ID_GPT_41_MINI=${{ secrets.ASSISTANT_ID_GPT_41_MINI }} /
+         -e ASAAS_API_KEY_PROD=${{ secrets.ASAAS_API_KEY_PROD }} /
+         -e ADVISOR_ASSISTANT_ID=${{ secrets.ADVISOR_ASSISTANT_ID }} /
+         --network ca-network-dev ${{ secrets.DOCKERHUB_REPO }}:${{ github.sha }}
+        "
+
+  
