@@ -15,18 +15,6 @@ jobs:
   steps:
     - uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-
-    - name: Restore Dependencies
-      run: dotnet restore ${{ github.workspace }}/CurriculumAdapter/CurriculumAdapter.sln
-
-    - name: Build
-      run: dotnet build --no-restore ${{ github.workspace }}/CurriculumAdapter/CurriculumAdapter.sln
-
-    - name: Publish Build
-      run: dotnet publish -c Release -o ${{ github.workspace }}/out ${{ github.workspace }}/CurriculumAdapter/CurriculumAdapter.API/CurriculumAdapter.API.csproj
-
     - name: Login Docker
       uses: docker/login-action@v3.5.0
       with: 
